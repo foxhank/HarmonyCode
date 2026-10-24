@@ -1,0 +1,18 @@
+{
+  "plural": [
+    {
+      "name": "plural_results",
+      "value": [
+        { "quantity": "one", "value": "%d result" },
+        { "quantity": "other", "value": "%d results" }
+      ]
+    },
+    {
+      "name": "plural_files",
+      "value": [
+        { "quantity": "one", "value": "%d file" },
+        { "quantity": "other", "value": "%d files" }
+      ]
+    }
+  ]
+}

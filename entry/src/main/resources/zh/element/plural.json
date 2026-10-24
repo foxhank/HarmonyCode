@@ -1,0 +1,16 @@
+{
+  "plural": [
+    {
+      "name": "plural_results",
+      "value": [
+        { "quantity": "other", "value": "%d 个结果" }
+      ]
+    },
+    {
+      "name": "plural_files",
+      "value": [
+        { "quantity": "other", "value": "%d 个文件" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "environments": [
+    { "id": "alpine", "isVm": true, "installCmd": "apk add", "available": true, "recommended": true },
+    { "id": "ubuntu", "isVm": true, "installCmd": "apt install -y", "available": true, "recommended": false },
+    { "id": "debian", "isVm": true, "installCmd": "apt install -y", "available": true, "recommended": false },
+    { "id": "none", "isVm": false, "installCmd": "", "available": true, "recommended": false },
+    { "id": "ssh", "isVm": false, "installCmd": "", "available": false, "recommended": false }
+  ],
+  "packageAliases": {
+    "apt": { "py3-pip": "python3-pip", "build-base": "build-essential", "go": "golang-go", "rust": "" }
+  },
+  "templates": [
+    { "id": "empty", "badge": "{ }", "color": "#8B949E", "packages": "", "runCommand": "", "files": ["README.md"] },
+    { "id": "python", "badge": "Py", "color": "#3776AB", "packages": "python3 py3-pip", "runCommand": "python3 main.py",
+      "files": ["main.py", "requirements.txt", "README.md", "gitignore"] },
+    { "id": "node", "badge": "JS", "color": "#C9A400", "packages": "nodejs npm", "runCommand": "node index.js",
+      "files": ["index.js", "package.json", "README.md", "gitignore"] },
+    { "id": "c", "badge": "C", "color": "#5C6BC0", "packages": "build-base", "runCommand": "make && ./main",
+      "files": ["main.c", "Makefile", "gitignore"] },
+    { "id": "web", "badge": "</>", "color": "#E44D26", "packages": "python3", "runCommand": "python3 -m http.server 8080",
+      "files": ["index.html", "style.css", "script.js"] },
+    { "id": "go", "badge": "Go", "color": "#00ADD8", "packages": "go", "runCommand": "go run .",
+      "files": ["main.go", "go.mod"] },
+    { "id": "rust", "badge": "Rs", "color": "#B7410E", "packages": "cargo rust", "runCommand": "cargo run",
+      "files": ["Cargo.toml", "src/main.rs", "gitignore"] },
+    { "id": "notes", "badge": "Md", "color": "#2EA043", "packages": "pandoc", "runCommand": "",
+      "files": ["notes.md", "docs/README.md"] }
+  ]
+}
