@@ -1,6 +1,13 @@
 import { AppConfig } from '../../core/common/AppConfig';
 import { LayoutState } from '../app/LayoutState';
 
+/** Width of the agent panel on tablets and desktops (vp). */
+class AgentPanelSize {
+  static readonly DEFAULT: number = 400;
+  static readonly MIN: number = 300;
+  static readonly MAX: number = 720;
+}
+
 /** Views that can fill the side bar (desktop/tablet) or the screen (phone). */
 export class ViewId {
   static readonly EXPLORER: string = 'explorer';
@@ -8,6 +15,14 @@ export class ViewId {
   static readonly SCM: string = 'scm';
   static readonly EDITOR: string = 'editor';
   static readonly TERMINAL: string = 'terminal';
+  /** Phone only: the agent fills the screen. */
+  static readonly AGENT: string = 'agent';
+}
+
+/** Settings pages that can be opened directly (see features/settings/SettingsCategories). */
+export class SettingsCategory {
+  static readonly NONE: string = '';
+  static readonly AGENT: string = 'agent';
 }
 
 /** Floating layers above the workbench. */
@@ -30,6 +45,11 @@ export class WorkbenchState {
   /** Phone only: which single view fills the screen. */
   @Trace phoneView: string = ViewId.EXPLORER;
   @Trace overlay: string = OverlayId.NONE;
+  /** Desktop/tablet: the agent panel on the right. */
+  @Trace agentVisible: boolean = false;
+  @Trace agentWidth: number = AgentPanelSize.DEFAULT;
+  /** Category the settings overlay opens at ('' = the category list). */
+  @Trace settingsCategory: string = SettingsCategory.NONE;
   private layout: LayoutState;
 
   constructor(layout: LayoutState) {
@@ -99,7 +119,37 @@ export class WorkbenchState {
   }
 
   openOverlay(id: string): void {
+    if (id === OverlayId.SETTINGS) {
+      this.settingsCategory = SettingsCategory.NONE;
+    }
     this.overlay = id;
+  }
+
+  /** Opens the settings overlay at a category. */
+  openSettings(category: string): void {
+    this.settingsCategory = category;
+    this.overlay = OverlayId.SETTINGS;
+  }
+
+  /** Shows the agent (phone: full screen; wider: the right-hand panel). */
+  showAgent(): void {
+    if (this.layout.isPhone) {
+      this.phoneView = ViewId.AGENT;
+    } else {
+      this.agentVisible = true;
+    }
+  }
+
+  toggleAgent(): void {
+    if (this.layout.isPhone) {
+      this.phoneView = this.phoneView === ViewId.AGENT ? ViewId.EDITOR : ViewId.AGENT;
+    } else {
+      this.agentVisible = !this.agentVisible;
+    }
+  }
+
+  resizeAgent(width: number): void {
+    this.agentWidth = Math.max(AgentPanelSize.MIN, Math.min(AgentPanelSize.MAX, width));
   }
 
   closeOverlay(): void {

@@ -36,7 +36,7 @@ export struct OverlayLayer {
       .padding({ left: $r('app.float.space_l'), right: $r('app.float.space_s') })
       .border({ width: { bottom: $r('app.float.border_width') }, color: $r('app.color.border') })
 
-      SettingsPanel()
+      SettingsPanel({ initialCategory: this.ws.ui.settingsCategory })
         .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
     }
     .width(layoutState.isPhone ? UiConst.FULL : $r('app.float.settings_overlay_width'))

@@ -1,4 +1,5 @@
 import { Strings } from '../../core/common/Strings';
+import { envImages } from '../../core/env/EnvImages';
 import { errorMessage, Logger } from '../../core/common/Logger';
 import { FileService } from '../../core/fs/FileService';
 import { Catalog, EnvironmentDef } from '../../core/project/Catalog';
@@ -52,9 +53,7 @@ export class CloneModel {
   }
 
   selectEnvironment(env: EnvironmentDef): void {
-    if (env.available) {
-      this.envId = env.id;
-    }
+    this.envId = env.id;
   }
 
   async clone(): Promise<void> {
@@ -74,6 +73,7 @@ export class CloneModel {
         this.progress = total > 0 ? loaded / total : 0;
       });
       const p = this.repo.add(name, dir, this.envId, EMPTY_TEMPLATE, '');
+      envImages.installInBackground(this.envId);
       openWorkbench(p.id);
     } catch (e) {
       const msg = errorMessage(e as Error);

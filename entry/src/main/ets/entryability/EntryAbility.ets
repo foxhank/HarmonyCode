@@ -5,11 +5,18 @@ import { Logger, errorMessage } from '../core/common/Logger';
 import { Strings } from '../core/common/Strings';
 import { Catalog } from '../core/project/Catalog';
 import { projectRepository } from '../core/project/ProjectRepository';
+import { envImages } from '../core/env/EnvImages';
 import { settingsStore } from '../core/settings/SettingsStore';
+import { HishEngine } from '../core/terminal/vm/HishEngine';
+import { vmRuntime } from '../core/terminal/vm/VmRuntime';
+import { AppRestart } from '../features/app/AppRestart';
 import { AppServices } from '../features/app/AppServices';
 import { appearance } from '../features/app/Appearance';
 import { ColorUtil } from '../features/app/ColorUtil';
 import { layoutState } from '../features/app/LayoutState';
+import { remoteHosts } from '../features/remote/RemoteHostsStore';
+import { RemoteServices } from '../features/remote/RemoteServices';
+import { BackgroundKeeper } from '../features/app/BackgroundKeeper';
 
 const TAG: string = 'EntryAbility';
 const MAIN_PAGE: string = 'pages/Index';
@@ -27,6 +34,11 @@ export default class EntryAbility extends UIAbility {
       settingsStore.load(ctx);
       Catalog.load(ctx);
       projectRepository.load(ctx);
+      remoteHosts.load(ctx, RemoteServices.crypto);
+      BackgroundKeeper.init(ctx);
+      envImages.init(ctx);
+      vmRuntime.init(new HishEngine());
+      AppRestart.init(ctx, want);
       appearance.init(ctx);
       appearance.applyLanguage(settingsStore.language);
       appearance.applyTheme(settingsStore.theme);
@@ -61,6 +73,7 @@ export default class EntryAbility extends UIAbility {
   }
 
   onDestroy(): void {
+    BackgroundKeeper.releaseAll();
     AppServices.git.dispose();
   }
 

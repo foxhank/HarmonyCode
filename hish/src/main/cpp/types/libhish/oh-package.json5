@@ -1,0 +1,6 @@
+{
+  "name": "libhish.so",
+  "types": "./Index.d.ts",
+  "version": "1.0.0",
+  "description": "N-API bridge to the hiSH QEMU runtime."
+}

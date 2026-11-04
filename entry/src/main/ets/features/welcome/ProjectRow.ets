@@ -53,11 +53,11 @@ export struct ProjectRow {
     .width(UiConst.FULL)
     .height(this.touch ? $r('app.float.list_row_touch_tall') : $r('app.float.list_row_tall'))
     .padding({ left: $r('app.float.space_m'), right: $r('app.float.space_m') })
-    .borderRadius($r('app.float.radius_m'))
-    .stateStyles({
-      normal: { .backgroundColor(Color.Transparent) },
-      pressed: { .backgroundColor($r('app.color.hover_bg')) }
-    })
+    .borderRadius($r('app.float.radius_l'))
+    .backgroundColor($r('app.color.card_bg'))
+    .border({ width: $r('app.float.border_width'), color: $r('app.color.card_edge') })
+    .shadow(ShadowStyle.OUTER_DEFAULT_XS)
+    .clickEffect({ level: ClickEffectLevel.LIGHT })
     .onClick(() => this.onOpen())
     .bindContextMenu(this.menu, ResponseType.RightClick)
     .bindContextMenu(this.menu, ResponseType.LongPress)

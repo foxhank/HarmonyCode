@@ -1,5 +1,5 @@
 import { EditorTheme } from '../editor/EditorModel';
-import { TerminalTheme } from '../terminal/TerminalModel';
+import { TerminalTheme } from '../terminal/TerminalController';
 import { appearance } from './Appearance';
 import { ColorUtil } from './ColorUtil';
 

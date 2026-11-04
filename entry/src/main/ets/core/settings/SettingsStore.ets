@@ -20,6 +20,9 @@ export class SettingsStore {
   @Trace wordWrap: boolean = false;
   @Trace autoSave: boolean = true;
   @Trace terminalFontSize: number = AppConfig.TERMINAL_FONT_DEFAULT;
+  /** Linux VM resources; take effect the next time the VM starts. */
+  @Trace vmCpus: number = AppConfig.VM_CPUS_DEFAULT;
+  @Trace vmMemoryMb: number = AppConfig.VM_MEMORY_DEFAULT_MB;
   @Trace theme: string = ThemeMode.SYSTEM;
   @Trace language: LanguageTag = '';
   @Trace gitName: string = '';
@@ -36,6 +39,8 @@ export class SettingsStore {
     this.wordWrap = p.getSync('wordWrap', this.wordWrap) as boolean;
     this.autoSave = p.getSync('autoSave', this.autoSave) as boolean;
     this.terminalFontSize = p.getSync('terminalFontSize', this.terminalFontSize) as number;
+    this.vmCpus = p.getSync('vmCpus', this.vmCpus) as number;
+    this.vmMemoryMb = p.getSync('vmMemoryMb', this.vmMemoryMb) as number;
     this.theme = p.getSync('theme', this.theme) as string;
     this.language = p.getSync('language', this.language) as string;
     this.gitName = p.getSync('gitName', '') as string;
@@ -54,6 +59,8 @@ export class SettingsStore {
     p.putSync('wordWrap', this.wordWrap);
     p.putSync('autoSave', this.autoSave);
     p.putSync('terminalFontSize', this.terminalFontSize);
+    p.putSync('vmCpus', this.vmCpus);
+    p.putSync('vmMemoryMb', this.vmMemoryMb);
     p.putSync('theme', this.theme);
     p.putSync('language', this.language);
     p.putSync('gitName', this.gitName);

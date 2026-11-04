@@ -1,17 +1,21 @@
+import { EnvironmentDef } from '../../project/Catalog';
 import { OutputSink, ShellBackend } from '../ShellBackend';
-import { VmBootConfig, VmEngine } from './VmEngine';
+import { GuestCommands, GuestProject } from './GuestCommands';
+import { VmResources, vmRuntime } from './VmRuntime';
 
-/** Terminal backend that forwards everything to a Linux VM's console. */
+/** Terminal backend connected to the app's Linux VM; boots it on first use. */
 export class VmShell implements ShellBackend {
-  private engine: VmEngine;
+  private env: EnvironmentDef;
+  private project: GuestProject;
+  private resources: VmResources;
   private out: OutputSink;
-  private config: VmBootConfig;
   private name: string;
 
-  constructor(engine: VmEngine, out: OutputSink, config: VmBootConfig, label: string) {
-    this.engine = engine;
+  constructor(env: EnvironmentDef, project: GuestProject, resources: VmResources, out: OutputSink, label: string) {
+    this.env = env;
+    this.project = project;
+    this.resources = resources;
     this.out = out;
-    this.config = config;
     this.name = label;
   }
 
@@ -20,24 +24,26 @@ export class VmShell implements ShellBackend {
   }
 
   start(cols: number, rows: number): void {
-    this.config.cols = cols;
-    this.config.rows = rows;
-    this.engine.boot(this.config, this.out);
+    vmRuntime.attach(this.out, this.project);
+    vmRuntime.setWindowSize(cols, rows);
+    vmRuntime.start(this.env, this.resources, cols, rows);
   }
 
   input(data: string): void {
-    this.engine.write(data);
+    vmRuntime.write(data);
   }
 
   resize(cols: number, rows: number): void {
-    this.engine.resize(cols, rows);
+    vmRuntime.setWindowSize(cols, rows);
   }
 
+  /** Runs a command from the project folder once the shell is ready. */
   runLine(line: string): void {
-    this.engine.write(line + '\r');
+    vmRuntime.run(GuestCommands.inProject(this.project, line));
   }
 
+  /** Disconnects this terminal; the VM keeps running for the next project. */
   stop(): void {
-    this.engine.shutdown();
+    vmRuntime.detach(this.out);
   }
 }

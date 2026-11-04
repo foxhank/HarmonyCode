@@ -1,4 +1,6 @@
 import { appNav } from '../app/AppNavigation';
+import { AppRestart } from '../app/AppRestart';
+import { toasts } from '../dialogs/ToastModel';
 import { CommandId, WorkbenchCommand } from '../commands/CommandService';
 import { OverlayId, ViewId } from './WorkbenchState';
 import { Workspace } from './Workspace';
@@ -31,6 +33,7 @@ export function registerWorkbenchCommands(ws: Workspace): void {
       id: CommandId.TOGGLE_TERMINAL, titleKey: 'cmd_toggle_terminal', keys: 'Ctrl+`',
       run: () => ws.ui.toggleTerminal()
     },
+    { id: CommandId.TOGGLE_AGENT, titleKey: 'cmd_toggle_agent', keys: 'Ctrl+Shift+A', run: () => ws.ui.toggleAgent() },
     {
       id: CommandId.EXPLORER, titleKey: 'cmd_show_explorer', keys: 'Ctrl+Shift+E',
       run: () => ws.ui.showSideView(ViewId.EXPLORER)
@@ -67,6 +70,19 @@ export function registerWorkbenchCommands(ws: Workspace): void {
         ws.editor.closeAll().then((ok: boolean) => {
           if (ok) {
             appNav.pop();
+          }
+        });
+      }
+    },
+    {
+      // Switching Linux environments needs a fresh process (QEMU boots once per process).
+      id: CommandId.RESTART_APP, titleKey: 'cmd_restart_app', keys: '', run: () => {
+        ws.editor.closeAll().then((ok: boolean) => {
+          if (ok) {
+            const error = AppRestart.restart(ws.project.id);
+            if (error.length > 0) {
+              toasts.error(error);
+            }
           }
         });
       }

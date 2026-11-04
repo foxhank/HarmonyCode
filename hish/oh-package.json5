@@ -1,0 +1,11 @@
+{
+  "name": "hish",
+  "version": "1.0.0",
+  "description": "hiSH Linux VM runtime: QEMU bridge, boot arguments and bundled images.",
+  "main": "Index.ets",
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "libhish.so": "file:./src/main/cpp/types/libhish"
+  }
+}

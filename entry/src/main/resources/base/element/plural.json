@@ -13,6 +13,7 @@
         { "quantity": "one", "value": "%d file" },
         { "quantity": "other", "value": "%d files" }
       ]
-    }
+    },
+    { "name": "agent_model_count", "value": [ { "quantity": "one", "value": "%d model" }, { "quantity": "other", "value": "%d models" } ] }
   ]
 }

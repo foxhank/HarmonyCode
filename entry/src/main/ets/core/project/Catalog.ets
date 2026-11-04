@@ -5,15 +5,43 @@ import { Logger, errorMessage } from '../common/Logger';
 const CATALOG_FILE: string = 'catalog/catalog.json';
 const TEMPLATE_ROOT: string = 'catalog/templates/';
 
+export enum ImageSource {
+  /** Shipped inside the app (resources/rawfile). */
+  BUNDLED = 'bundled',
+  /** Downloaded on demand. */
+  DOWNLOAD = 'download'
+}
+
+/** Where an environment's root filesystem image comes from. */
+export interface ImageDef {
+  source: string;
+  /** Raw file path, for BUNDLED. */
+  path: string;
+  /** URL, size and SHA-256 (hex), for DOWNLOAD. */
+  url: string;
+  bytes: number;
+  sha256: string;
+}
+
+/** Typed into the console during boot: when output ends with `expect`, send `send` + Enter. */
+export interface LoginStep {
+  expect: string;
+  send: string;
+}
+
 /** A Linux environment a project can run in. Display text: env_<id>_name / env_<id>_detail strings. */
 export interface EnvironmentDef {
   id: string;
   /** Runs in the hiSH Linux VM. */
   isVm: boolean;
+  /** Key into packageAliases ('apk', 'apt'). */
+  packageFamily: string;
   /** Package install command prefix, e.g. 'apk add'. */
   installCmd: string;
-  available: boolean;
   recommended: boolean;
+  /** Root filesystem, for VM environments. */
+  image?: ImageDef;
+  login: LoginStep[];
 }
 
 /** A starter project. Display text: tpl_<id>_name / tpl_<id>_detail strings. */
@@ -74,8 +102,7 @@ export class Catalog {
     if (!env.isVm || tpl.packages.length === 0) {
       return '';
     }
-    const family = env.installCmd.split(' ')[0];
-    const aliases: Record<string, string> | undefined = Catalog.data.packageAliases[family];
+    const aliases: Record<string, string> | undefined = Catalog.data.packageAliases[env.packageFamily];
     const out: string[] = [];
     for (const name of tpl.packages.split(' ')) {
       let mapped = name;

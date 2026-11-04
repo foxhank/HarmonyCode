@@ -18,3 +18,4 @@ Thumbs.db
 *.hap
 *.app
 *.tgz
+/third_party/hish/cache

@@ -5,7 +5,7 @@ import { CommandId } from '../commands/CommandService';
 import { OverlayId, ViewId } from './WorkbenchState';
 import { Workspace } from './Workspace';
 
-/** Top bar: project, branch, quick-open box (wide screens), run and layout toggles. */
+/** Top bar: project, branch, agent box (wide screens), quick open, run and layout toggles. */
 @ComponentV2
 export struct TitleBar {
   @Param @Require ws: Workspace;
@@ -33,28 +33,38 @@ export struct TitleBar {
     }
   }
 
+  /** Centre of the title bar: opens the agent panel, like a command box for the coding agent. */
   @Builder
-  searchBox() {
+  agentBox() {
     Row({ space: $r('app.float.space_s') }) {
-      Image($r('app.media.ic_search'))
+      Image($r('app.media.ic_agent'))
         .width($r('app.float.icon_size_small'))
         .height($r('app.float.icon_size_small'))
-        .fillColor($r('app.color.icon'))
-      Text(this.ws.project.name)
+        .fillColor($r('app.color.accent'))
+      Text(this.ws.agent.busy ? $r('app.string.agent_working') : $r('app.string.agent_titlebar_prompt'))
         .fontSize($r('app.float.font_s'))
         .fontColor($r('app.color.text_secondary'))
         .maxLines(UiConst.MAX_LINES_TITLE)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+      if (this.ws.agent.busy) {
+        LoadingProgress()
+          .width($r('app.float.icon_size_small'))
+          .height($r('app.float.icon_size_small'))
+          .color($r('app.color.accent'))
+      }
     }
     .width($r('app.float.title_search_width'))
     .height($r('app.float.title_search_height'))
     .padding({ left: $r('app.float.space_s'), right: $r('app.float.space_s') })
-    .backgroundColor($r('app.color.input_bg'))
+    .backgroundColor(this.ws.ui.agentVisible ? $r('app.color.selected_bg') : $r('app.color.input_bg'))
     .borderRadius($r('app.float.radius_m'))
-    .border({ width: $r('app.float.border_width'), color: $r('app.color.input_border') })
-    .onClick(() => this.run(CommandId.QUICK_OPEN))
-    .accessibilityText($r('app.string.cmd_quick_open'))
+    .border({
+      width: $r('app.float.border_width'),
+      color: this.ws.ui.agentVisible ? $r('app.color.border_focus') : $r('app.color.input_border')
+    })
+    .onClick(() => this.ws.ui.toggleAgent())
+    .accessibilityText($r('app.string.cmd_toggle_agent'))
   }
 
   build() {
@@ -108,14 +118,18 @@ export struct TitleBar {
           .onClick(() => this.ws.ui.openOverlay(OverlayId.BRANCHES))
         }
         Blank()
-        this.searchBox()
+        this.agentBox()
         Blank()
+        IconButton({ icon: $r('app.media.ic_search'), label: $r('app.string.cmd_quick_open'),
+          onTap: () => this.run(CommandId.QUICK_OPEN) })
         IconButton({ icon: $r('app.media.ic_play'), label: $r('app.string.cmd_run'),
           onTap: () => this.run(CommandId.RUN) })
         IconButton({ icon: $r('app.media.ic_sidebar'), label: $r('app.string.cmd_toggle_sidebar'),
           active: this.ws.ui.sidebarVisible, onTap: () => this.run(CommandId.TOGGLE_SIDEBAR) })
         IconButton({ icon: $r('app.media.ic_panel'), label: $r('app.string.cmd_toggle_terminal'),
           active: this.ws.ui.panelVisible, onTap: () => this.run(CommandId.TOGGLE_TERMINAL) })
+        IconButton({ icon: $r('app.media.ic_agent'), label: $r('app.string.cmd_toggle_agent'),
+          active: this.ws.ui.agentVisible, onTap: () => this.ws.ui.toggleAgent() })
         IconButton({ icon: $r('app.media.ic_settings'), label: $r('app.string.cmd_settings'),
           onTap: () => this.run(CommandId.SETTINGS) })
       }

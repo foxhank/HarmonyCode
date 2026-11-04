@@ -1,0 +1,12 @@
+{
+  "release": "release-20260516",
+  "url": "https://github.com/harmoninux/HiSH/releases/download/release-20260516/entry-default-20260516.zip",
+  "sha256": "8fd276a42e76a9673297491c1dd2ce8f3a18dcdba1221b855cc33afca37ee240",
+  "abis": ["arm64-v8a", "x86_64"],
+  "libs": ["libqemu-system-aarch64.so", "libslirp.so.0"],
+  "rawfiles": {
+    "resources/rawfile/vm/kernel_aarch64": "kernel_aarch64",
+    "resources/rawfile/vm/efi-virtio.rom": "efi-virtio.rom",
+    "resources/rawfile/vm/rootfs_aarch64.qcow2": "alpine.qcow2"
+  }
+}

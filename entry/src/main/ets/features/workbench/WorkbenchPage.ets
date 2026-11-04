@@ -1,5 +1,6 @@
 import { Strings } from '../../core/common/Strings';
 import { projectRepository } from '../../core/project/ProjectRepository';
+import { agentSettings } from '../../core/settings/AgentSettingsStore';
 import { settingsStore } from '../../core/settings/SettingsStore';
 import { UiConst } from '../../components/UiConst';
 import { appNav } from '../app/AppNavigation';
@@ -34,6 +35,7 @@ export struct WorkbenchPage {
       appNav.pop();
       return;
     }
+    agentSettings.ensureLoaded(getContext(this));
     this.ws = new Workspace(project, {
       layout: layoutState,
       git: AppServices.git,

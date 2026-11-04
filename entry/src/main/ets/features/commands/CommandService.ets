@@ -14,6 +14,7 @@ export class CommandId {
   static readonly PREV_TAB: string = 'prevTab';
   static readonly TOGGLE_SIDEBAR: string = 'toggleSidebar';
   static readonly TOGGLE_TERMINAL: string = 'toggleTerminal';
+  static readonly TOGGLE_AGENT: string = 'toggleAgent';
   static readonly EXPLORER: string = 'explorer';
   static readonly SEARCH: string = 'search';
   static readonly GIT: string = 'git';
@@ -26,6 +27,7 @@ export class CommandId {
   static readonly GIT_BRANCH: string = 'gitBranch';
   static readonly SETTINGS: string = 'settings';
   static readonly CLOSE_PROJECT: string = 'closeProject';
+  static readonly RESTART_APP: string = 'restartApp';
 }
 
 export interface WorkbenchCommand {

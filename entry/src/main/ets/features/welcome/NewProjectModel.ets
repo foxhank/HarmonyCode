@@ -1,4 +1,5 @@
 import { Strings } from '../../core/common/Strings';
+import { envImages } from '../../core/env/EnvImages';
 import { errorMessage, Logger } from '../../core/common/Logger';
 import { PathUtil } from '../../core/fs/PathUtil';
 import { Catalog, EnvironmentDef, TemplateDef } from '../../core/project/Catalog';
@@ -57,9 +58,7 @@ export class NewProjectModel {
   }
 
   selectEnvironment(env: EnvironmentDef): void {
-    if (env.available) {
-      this.envId = env.id;
-    }
+    this.envId = env.id;
   }
 
   async create(): Promise<void> {
@@ -78,6 +77,7 @@ export class NewProjectModel {
         await this.git.init(dir);
       }
       const p = this.repo.add(name, dir, this.envId, tpl.id, tpl.runCommand);
+      envImages.installInBackground(this.envId);
       openWorkbench(p.id);
     } catch (e) {
       const msg = errorMessage(e as Error);
