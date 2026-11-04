@@ -4,6 +4,10 @@ export class Routes {
   static readonly CLONE: string = 'clone';
   static readonly WORKBENCH: string = 'workbench';
   static readonly SETTINGS: string = 'settings';
+  /** A remote computer's workspace; the parameter is the host id. */
+  static readonly REMOTE: string = 'remote';
+  /** Add ('' parameter) or edit a remote computer. */
+  static readonly HOST_EDITOR: string = 'hostEditor';
 }
 
 /** The single navigation stack (welcome screen is the root). */

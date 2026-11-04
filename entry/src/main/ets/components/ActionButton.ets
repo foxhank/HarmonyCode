@@ -33,7 +33,7 @@ export struct ActionButton {
   }
 
   build() {
-    Button({ type: ButtonType.Normal, stateEffect: true }) {
+    Button({ type: ButtonType.Capsule, stateEffect: true }) {
       Row({ space: $r('app.float.space_s') }) {
         if (this.icon !== undefined) {
           Image(this.icon)
@@ -53,7 +53,9 @@ export struct ActionButton {
     .height(this.buttonHeight)
     .width(this.stretch ? UiConst.FULL : undefined)
     .backgroundColor(this.bg())
-    .borderRadius($r('app.float.radius_s'))
+    .shadow(this.kind === ActionStyle.PRIMARY && this.isEnabled ?
+      { radius: UiConst.SHADOW_SOFT_RADIUS, color: $r('app.color.bubble_shadow'), offsetY: UiConst.SHADOW_SOFT_OFFSET } :
+      { radius: 0, color: Color.Transparent })
     .enabled(this.isEnabled)
     .opacity(this.isEnabled ? 1 : UiConst.DISABLED_OPACITY)
     .onClick(() => this.onTap())

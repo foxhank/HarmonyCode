@@ -1,6 +1,6 @@
 import { Keys } from '../../core/terminal/Keys';
 import { UiConst } from '../../components/UiConst';
-import { TerminalModel } from './TerminalModel';
+import { TerminalController } from './TerminalController';
 
 interface KeyDef {
   label: ResourceStr;
@@ -10,7 +10,7 @@ interface KeyDef {
 /** Keys missing from on-screen keyboards (Esc, Tab, Ctrl, arrows...). Shown on phones and tablets. */
 @ComponentV2
 export struct ExtraKeys {
-  @Param @Require model: TerminalModel;
+  @Param @Require model: TerminalController;
 
   private keys(): KeyDef[] {
     return [

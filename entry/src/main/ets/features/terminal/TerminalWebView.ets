@@ -4,7 +4,7 @@ import { SettingsStore, settingsStore } from '../../core/settings/SettingsStore'
 import { UiConst } from '../../components/UiConst';
 import { AppearanceState, appearance } from '../app/Appearance';
 import { TERMINAL_JS_NAME, TerminalJsApi } from './TerminalBridge';
-import { TerminalModel } from './TerminalModel';
+import { TerminalController } from './TerminalController';
 
 const RAWFILE_SCHEME: string = 'resource://rawfile/';
 const BOOT_JS: string = 'window.hcTerm && hcTerm.boot()';
@@ -12,7 +12,7 @@ const BOOT_JS: string = 'window.hcTerm && hcTerm.boot()';
 /** Hosts the xterm.js page for a terminal session. */
 @ComponentV2
 export struct TerminalWebView {
-  @Param @Require model: TerminalModel;
+  @Param @Require model: TerminalController;
   @Local s: SettingsStore = settingsStore;
   @Local look: AppearanceState = appearance;
   private ctl: webview.WebviewController = new webview.WebviewController();

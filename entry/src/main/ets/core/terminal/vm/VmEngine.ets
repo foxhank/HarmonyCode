@@ -1,24 +1,28 @@
 import { OutputSink } from '../ShellBackend';
 
-/** How to boot a VM for a project. */
+/** How to boot the Linux VM. */
 export interface VmBootConfig {
-  /** Environment id from the catalog ('alpine', 'ubuntu', ...). */
-  envId: string;
-  /** Folder with the kernel and root filesystem for this environment. */
-  imageDir: string;
-  /** Project folder, shared into the VM (mounted at /root/<project>). */
+  kernelPath: string;
+  rootfsPath: string;
+  firmwareDir: string;
+  /** Host folder shared into the VM (appears at AppConfig.VM_GUEST_SHARE). */
   sharedDir: string;
-  cols: number;
-  rows: number;
+  /** Unix socket path for the serial console. */
+  serialSocket: string;
+  cpus: number;
+  memoryMb: number;
+  /** Guest TCP ports to expose at the same port on 127.0.0.1 (taken ports are skipped). */
+  forwardPorts: number[];
 }
 
 /**
- * Native Linux VM (hiSH / qemu-ohos) behind a small interface.
- * The hiSH integration implements this over NAPI; nothing else in the app depends on QEMU.
+ * A Linux VM behind a small interface (implemented by HishEngine over hiSH's QEMU).
+ * Nothing else in the app depends on QEMU. A VM boots at most once per process.
  */
 export interface VmEngine {
-  boot(config: VmBootConfig, output: OutputSink): void;
-  write(data: string): void;
-  resize(cols: number, rows: number): void;
-  shutdown(): void;
+  isAvailable(): boolean;
+  /** Boots the VM. Returns '' when started, otherwise the reason. Output is decoded UTF-8 text. */
+  boot(config: VmBootConfig, output: OutputSink, onExit: (code: number) => void): string;
+  /** Sends text to the console. False when the console isn't connected yet. */
+  write(data: string): boolean;
 }

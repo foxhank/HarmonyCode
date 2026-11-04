@@ -41,7 +41,8 @@ export class CardModifier implements AttributeModifier<ColumnAttribute> {
   applyNormalAttribute(instance: ColumnAttribute): void {
     instance
       .backgroundColor($r('app.color.card_bg'))
-      .borderRadius($r('app.float.radius_m'))
-      .border({ width: $r('app.float.border_width'), color: $r('app.color.border') });
+      .borderRadius($r('app.float.radius_l'))
+      .border({ width: $r('app.float.border_width'), color: $r('app.color.card_edge') })
+      .shadow(ShadowStyle.OUTER_DEFAULT_SM);
   }
 }

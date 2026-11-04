@@ -1,3 +1,4 @@
+import { curves } from '@kit.ArkUI';
 import { ActionButton, ActionStyle } from '../../components/ActionButton';
 import { InputModifier } from '../../components/Modifiers';
 import { UiConst } from '../../components/UiConst';
@@ -62,9 +63,11 @@ export struct DialogHost {
         .constraintSize({ maxWidth: UiConst.FLOATING_MAX_WIDTH })
         .padding($r('app.float.space_l'))
         .backgroundColor($r('app.color.dialog_bg'))
-        .borderRadius($r('app.float.radius_l'))
-        .border({ width: $r('app.float.border_width'), color: $r('app.color.border') })
-        .shadow(ShadowStyle.OUTER_DEFAULT_MD)
+        .borderRadius($r('app.float.radius_xl'))
+        .border({ width: $r('app.float.border_width'), color: $r('app.color.card_edge') })
+        .shadow(ShadowStyle.OUTER_FLOATING_MD)
+        .transition(TransitionEffect.OPACITY.combine(TransitionEffect.scale({ x: 0.94, y: 0.94 }))
+          .animation({ curve: curves.springMotion(UiConst.SPRING_RESPONSE, UiConst.SPRING_DAMPING) }))
       }
       .width(UiConst.FULL)
       .height(UiConst.FULL)

@@ -57,9 +57,33 @@ export class AppConfig {
   static readonly EDITOR_PAGE: string = 'web/editor.html';
   static readonly TERMINAL_PAGE: string = 'web/terminal.html';
 
+  // Linux VM (hiSH).
+  static readonly VM_CPUS_DEFAULT: number = 2;
+  static readonly VM_CPUS_MIN: number = 1;
+  static readonly VM_CPUS_MAX: number = 8;
+  static readonly VM_MEMORY_DEFAULT_MB: number = 1024;
+  static readonly VM_MEMORY_MIN_MB: number = 512;
+  static readonly VM_MEMORY_MAX_MB: number = 8192;
+  static readonly VM_MEMORY_STEP_MB: number = 256;
+  /** Guest ports reachable from the device at 127.0.0.1:<same port> (skipped if already taken). */
+  static readonly VM_FORWARDED_PORTS: number[] = [3000, 5000, 8000, 8080];
+  /** Where the workspace appears inside the VM (hiSH images mount the share there). */
+  static readonly VM_GUEST_SHARE: string = '/mnt/share';
+  /** Output kept while no terminal is attached to the VM. */
+  static readonly VM_BACKLOG_CHARS: number = 200000;
+  /** Console text examined for login and shell prompts. */
+  static readonly VM_PROMPT_TAIL_CHARS: number = 256;
+  static readonly VM_SOCKET_NAME: string = 'hish-console.sock';
+  static readonly VM_ROOTFS_FILE: string = 'rootfs.qcow2';
+  static readonly VM_WINSIZE_FILE: string = 'winsize';
+  static readonly VM_PROGRESS_STEP: number = 0.01;
+  static readonly VM_PROGRESS_INTERVAL: number = 250;
+
   // Folder names inside the app sandbox.
   static readonly WORKSPACE_DIR: string = 'workspace';
+  static readonly VM_CONTROL_DIR: string = '.harmonycode';
   static readonly VM_DIR: string = 'vm';
+  static readonly VM_FIRMWARE_DIR: string = 'firmware';
 
   // Preference store names.
   static readonly PREFS_SETTINGS: string = 'settings';

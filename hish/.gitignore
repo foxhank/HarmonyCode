@@ -1,0 +1,9 @@
+/node_modules
+/oh_modules
+/.preview
+/build
+/.cxx
+/.test
+# Prebuilt hiSH runtime, fetched by scripts/fetch-hish.ps1
+/libs
+/src/main/resources/rawfile/hish

@@ -25,7 +25,6 @@ export struct EnvironmentPicker {
         Row({ space: $r('app.float.space_m') }) {
           Radio({ value: env.id, group: 'environment' })
             .checked(env.id === this.selectedId)
-            .enabled(env.available)
             .onChange((checked: boolean) => {
               if (checked) {
                 this.onSelect(env);
@@ -40,13 +39,15 @@ export struct EnvironmentPicker {
               if (env.recommended) {
                 this.tag($r('app.string.badge_recommended'), $r('app.color.accent'))
               }
-              if (!env.available) {
-                this.tag($r('app.string.badge_coming_soon'), $r('app.color.text_muted'))
-              }
             }
             Text(CatalogText.envDetail(env.id))
               .fontSize($r('app.float.font_s'))
               .fontColor($r('app.color.text_secondary'))
+            if (CatalogText.envStatus(env).length > 0) {
+              Text(CatalogText.envStatus(env))
+                .fontSize($r('app.float.font_xs'))
+                .fontColor($r('app.color.text_muted'))
+            }
           }
           .alignItems(HorizontalAlign.Start)
           .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
@@ -59,7 +60,6 @@ export struct EnvironmentPicker {
           color: env.id === this.selectedId ? $r('app.color.border_focus') : $r('app.color.border')
         })
         .backgroundColor(env.id === this.selectedId ? $r('app.color.selected_bg') : $r('app.color.card_bg'))
-        .opacity(env.available ? 1 : UiConst.DISABLED_OPACITY)
         .onClick(() => this.onSelect(env))
       }, (env: EnvironmentDef) => env.id)
     }

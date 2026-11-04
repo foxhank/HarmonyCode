@@ -24,12 +24,16 @@ export class TerminalSession {
     }
   };
 
+  /** Replaces the backend; when a view is attached the new one starts right away. */
   setBackend(backend: ShellBackend): void {
     if (this.backend !== null) {
       this.backend.stop();
     }
     this.backend = backend;
-    this.started = false;
+    this.started = this.sink !== null;
+    if (this.started) {
+      backend.start(this.cols, this.rows);
+    }
   }
 
   label(): string {

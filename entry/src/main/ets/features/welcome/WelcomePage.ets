@@ -4,21 +4,52 @@ import { ProjectInfo } from '../../core/project/ProjectInfo';
 import { projectRepository } from '../../core/project/ProjectRepository';
 import { ActionButton, ActionStyle } from '../../components/ActionButton';
 import { EmptyState } from '../../components/EmptyState';
-import { IconButton } from '../../components/IconButton';
 import { InputModifier } from '../../components/Modifiers';
+import { GlassBarModifier } from '../../components/Surface';
 import { UiConst } from '../../components/UiConst';
 import { appNav, Routes } from '../app/AppNavigation';
 import { layoutState } from '../app/LayoutState';
 import { dialogs } from '../dialogs/DialogModel';
 import { toasts } from '../dialogs/ToastModel';
+import { RemoteHostsView } from '../remote/RemoteHostsView';
+import { SettingsPanel } from '../settings/SettingsPanel';
+import { CloneView } from './ClonePage';
 import { ProjectRow } from './ProjectRow';
 import { WelcomeModel } from './WelcomeModel';
 
-/** Start screen: recent projects plus New / Open / Clone, like PyCharm's welcome window. */
+/** Sections of the start screen's navigation bar. */
+class WelcomeSection {
+  static readonly PROJECTS: string = 'projects';
+  static readonly REMOTE: string = 'remote';
+  static readonly CLONE: string = 'clone';
+  static readonly SETTINGS: string = 'settings';
+}
+
+interface SectionItem {
+  id: string;
+  icon: Resource;
+  label: Resource;
+}
+
+/**
+ * Start screen with a navigation bar (a side rail on tablets and desktops, a bottom bar on
+ * phones) switching between Projects, Get from VCS and Settings.
+ */
 @ComponentV2
 export struct WelcomePage {
   @Local model: WelcomeModel = new WelcomeModel(projectRepository, dialogs, toasts);
+  @Local section: string = WelcomeSection.PROJECTS;
   private inputStyle: InputModifier = new InputModifier();
+  private glass: GlassBarModifier = new GlassBarModifier();
+
+  private sections(): SectionItem[] {
+    return [
+      { id: WelcomeSection.PROJECTS, icon: $r('app.media.ic_folder'), label: $r('app.string.welcome_nav_projects') },
+      { id: WelcomeSection.REMOTE, icon: $r('app.media.ic_computer'), label: $r('app.string.welcome_nav_remote') },
+      { id: WelcomeSection.CLONE, icon: $r('app.media.ic_git_branch'), label: $r('app.string.welcome_nav_clone') },
+      { id: WelcomeSection.SETTINGS, icon: $r('app.media.ic_settings'), label: $r('app.string.settings_title') },
+    ];
+  }
 
   build() {
     Column() {
@@ -46,40 +77,27 @@ export struct WelcomePage {
   @Builder
   wideLayout() {
     Row() {
-      Column({ space: $r('app.float.space_l') }) {
-        this.brand()
-        Blank()
-        Row({ space: $r('app.float.space_s') }) {
-          IconButton({
-            icon: $r('app.media.ic_settings'),
-            label: $r('app.string.settings_title'),
-            onTap: () => appNav.pushPathByName(Routes.SETTINGS, null)
-          })
-          Text($r('app.string.settings_title'))
-            .fontSize($r('app.float.font_m'))
-            .fontColor($r('app.color.text_secondary'))
-        }
-        .onClick(() => appNav.pushPathByName(Routes.SETTINGS, null))
+      Column({ space: $r('app.float.space_xs') }) {
+        this.brand(layoutState.isDesktop)
+        Column()
+          .height($r('app.float.space_l'))
+        ForEach(this.sections(), (item: SectionItem) => {
+          this.railItem(item)
+        }, (item: SectionItem) => item.id)
       }
-      .width($r('app.float.welcome_sidebar_width'))
+      .width(layoutState.isDesktop ? $r('app.float.welcome_sidebar_width') : $r('app.float.welcome_rail_width'))
       .height(UiConst.FULL)
-      .padding($r('app.float.space_xl'))
-      .alignItems(HorizontalAlign.Start)
+      .padding({ left: $r('app.float.space_m'), right: $r('app.float.space_m'), top: $r('app.float.space_xl') })
+      .alignItems(layoutState.isDesktop ? HorizontalAlign.Start : HorizontalAlign.Center)
       .backgroundColor($r('app.color.sidebar_bg'))
 
       Divider().vertical(true).color($r('app.color.border'))
 
-      Column({ space: $r('app.float.space_l') }) {
-        Row({ space: $r('app.float.space_s') }) {
-          this.searchField()
-          this.actionButtons(false)
-        }
-        .width(UiConst.FULL)
-        this.projectList(false)
+      Column() {
+        this.sectionContent(false)
       }
       .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
       .height(UiConst.FULL)
-      .padding($r('app.float.space_xl'))
     }
     .width(UiConst.FULL)
     .height(UiConst.FULL)
@@ -87,48 +105,172 @@ export struct WelcomePage {
 
   @Builder
   phoneLayout() {
-    Column({ space: $r('app.float.space_m') }) {
-      Row() {
-        this.brand()
-        Blank()
-        IconButton({
-          icon: $r('app.media.ic_settings'),
-          label: $r('app.string.settings_title'),
-          buttonSize: $r('app.float.icon_button_size_touch'),
-          onTap: () => appNav.pushPathByName(Routes.SETTINGS, null)
-        })
+    Column() {
+      Column() {
+        this.sectionContent(true)
       }
       .width(UiConst.FULL)
-      this.actionButtons(true)
-      if (this.model.hasProjects) {
-        this.searchField()
+      .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+      Row() {
+        ForEach(this.sections(), (item: SectionItem) => {
+          this.bottomItem(item)
+        }, (item: SectionItem) => item.id)
       }
-      this.projectList(true)
+      .attributeModifier(this.glass)
+      .width(UiConst.FULL)
+      .height($r('app.float.bottomnav_height'))
     }
     .width(UiConst.FULL)
     .height(UiConst.FULL)
-    .padding($r('app.float.space_l'))
+  }
+
+  @Builder
+  sectionContent(touch: boolean) {
+    if (this.section === WelcomeSection.CLONE) {
+      Column() {
+        this.sectionHeader($r('app.string.clone_title'), touch)
+        CloneView()
+          .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+      }
+      .width(UiConst.FULL)
+      .height(UiConst.FULL)
+    } else if (this.section === WelcomeSection.REMOTE) {
+      Column() {
+        this.sectionHeader($r('app.string.remote_title'), touch)
+        RemoteHostsView({ touch: touch })
+          .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+      }
+      .width(UiConst.FULL)
+      .height(UiConst.FULL)
+    } else if (this.section === WelcomeSection.SETTINGS) {
+      Column() {
+        this.sectionHeader($r('app.string.settings_title'), touch)
+        SettingsPanel()
+          .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+      }
+      .width(UiConst.FULL)
+      .height(UiConst.FULL)
+    } else {
+      this.projectsSection(touch)
+    }
+  }
+
+  @Builder
+  sectionHeader(title: ResourceStr, touch: boolean) {
+    Text(title)
+      .fontSize($r('app.float.font_xl'))
+      .fontWeight(FontWeight.Medium)
+      .fontColor($r('app.color.text_primary'))
+      .width(UiConst.FULL)
+      .height($r('app.float.page_header_height'))
+      .padding({ left: touch ? $r('app.float.space_l') : $r('app.float.space_xl') })
+  }
+
+  @Builder
+  projectsSection(touch: boolean) {
+    Column({ space: touch ? $r('app.float.space_m') : $r('app.float.space_l') }) {
+      if (touch) {
+        this.brand(true)
+        this.actionButtons(true)
+        if (this.model.hasProjects) {
+          this.searchField()
+        }
+      } else {
+        Row({ space: $r('app.float.space_s') }) {
+          this.searchField()
+          this.actionButtons(false)
+        }
+        .width(UiConst.FULL)
+      }
+      this.projectList(touch)
+    }
+    .width(UiConst.FULL)
+    .height(UiConst.FULL)
+    .padding(touch ? $r('app.float.space_l') : $r('app.float.space_xl'))
+  }
+
+  @Builder
+  railItem(item: SectionItem) {
+    Row({ space: $r('app.float.space_m') }) {
+      Image(item.icon)
+        .width($r('app.float.icon_size'))
+        .height($r('app.float.icon_size'))
+        .fillColor(this.section === item.id ? $r('app.color.accent') : $r('app.color.icon'))
+      if (layoutState.isDesktop) {
+        Text(item.label)
+          .fontSize($r('app.float.font_m'))
+          .fontWeight(this.section === item.id ? FontWeight.Medium : FontWeight.Normal)
+          .fontColor(this.section === item.id ? $r('app.color.text_primary') : $r('app.color.text_secondary'))
+          .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+      }
+    }
+    .width(layoutState.isDesktop ? UiConst.FULL : $r('app.float.icon_button_size_touch'))
+    .height($r('app.float.list_row_touch'))
+    .justifyContent(layoutState.isDesktop ? FlexAlign.Start : FlexAlign.Center)
+    .padding({
+      left: layoutState.isDesktop ? $r('app.float.space_m') : 0,
+      right: layoutState.isDesktop ? $r('app.float.space_m') : 0
+    })
+    .backgroundColor(this.section === item.id ? $r('app.color.accent_soft') : Color.Transparent)
+    .borderRadius($r('app.float.radius_l'))
+    .clickEffect({ level: ClickEffectLevel.LIGHT })
+    .onClick(() => {
+      this.section = item.id;
+    })
+    .accessibilityText(item.label)
+  }
+
+  @Builder
+  bottomItem(item: SectionItem) {
+    Column({ space: $r('app.float.space_xxs') }) {
+      Image(item.icon)
+        .width($r('app.float.icon_size'))
+        .height($r('app.float.icon_size'))
+        .fillColor(this.section === item.id ? $r('app.color.accent') : $r('app.color.icon'))
+      Text(item.label)
+        .fontSize($r('app.float.font_xxs'))
+        .fontColor(this.section === item.id ? $r('app.color.accent') : $r('app.color.text_secondary'))
+    }
+    .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+    .height(UiConst.FULL)
+    .justifyContent(FlexAlign.Center)
+    .clickEffect({ level: ClickEffectLevel.LIGHT })
+    .onClick(() => {
+      this.section = item.id;
+    })
+    .accessibilityText(item.label)
   }
 
   // ---------- pieces ----------
 
   @Builder
-  brand() {
+  brand(withText: boolean) {
     Row({ space: $r('app.float.space_m') }) {
-      Image($r('app.media.ic_logo'))
-        .width($r('app.float.logo_size'))
-        .height($r('app.float.logo_size'))
-        .fillColor($r('app.color.accent'))
-      Column() {
-        Text($r('app.string.app_name'))
-          .fontSize($r('app.float.font_xl'))
-          .fontWeight(FontWeight.Bold)
-          .fontColor($r('app.color.text_primary'))
-        Text($r('app.string.app_tagline'))
-          .fontSize($r('app.float.font_s'))
-          .fontColor($r('app.color.text_secondary'))
+      Stack() {
+        Image($r('app.media.ic_logo'))
+          .width($r('app.float.icon_size_large'))
+          .height($r('app.float.icon_size_large'))
+          .fillColor($r('app.color.text_on_bubble'))
       }
-      .alignItems(HorizontalAlign.Start)
+      .width($r('app.float.logo_size'))
+      .height($r('app.float.logo_size'))
+      .borderRadius($r('app.float.radius_l'))
+      .linearGradient({ angle: UiConst.GRADIENT_ANGLE,
+        colors: [[$r('app.color.bubble_start'), 0], [$r('app.color.bubble_end'), 1]] })
+      .shadow({ radius: UiConst.SHADOW_SOFT_RADIUS, color: $r('app.color.bubble_shadow'),
+        offsetY: UiConst.SHADOW_SOFT_OFFSET })
+      if (withText) {
+        Column() {
+          Text($r('app.string.app_name'))
+            .fontSize($r('app.float.font_xl'))
+            .fontWeight(FontWeight.Bold)
+            .fontColor($r('app.color.text_primary'))
+          Text($r('app.string.app_tagline'))
+            .fontSize($r('app.float.font_s'))
+            .fontColor($r('app.color.text_secondary'))
+        }
+        .alignItems(HorizontalAlign.Start)
+      }
     }
   }
 
@@ -156,7 +298,9 @@ export struct WelcomePage {
       })
       ActionButton({
         text: $r('app.string.welcome_clone'), icon: $r('app.media.ic_git_branch'), kind: ActionStyle.SECONDARY,
-        onTap: () => appNav.pushPathByName(Routes.CLONE, null)
+        onTap: () => {
+          this.section = WelcomeSection.CLONE;
+        }
       })
     }
     .width(stretch ? UiConst.FULL : undefined)
@@ -178,7 +322,7 @@ export struct WelcomePage {
           .fontColor($r('app.color.text_secondary'))
           .width(UiConst.FULL)
           .margin({ bottom: $r('app.float.space_s') })
-        List() {
+        List({ space: UiConst.AGENT_ITEM_GAP }) {
           ForEach(this.model.visibleProjects, (p: ProjectInfo) => {
             ListItem() {
               ProjectRow({
@@ -193,6 +337,8 @@ export struct WelcomePage {
         }
         .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
         .scrollBar(BarState.Auto)
+        .edgeEffect(EdgeEffect.Spring)
+        .clip(false)
       }
       .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
     }

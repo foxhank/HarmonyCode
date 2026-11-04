@@ -1,4 +1,5 @@
 import { UiConst } from '../../components/UiConst';
+import { AgentPanel } from '../agent/views/AgentPanel';
 import { CommandId } from '../commands/CommandService';
 import { EditorPane } from '../editor/EditorPane';
 import { TerminalPanel } from '../terminal/TerminalPanel';
@@ -31,6 +32,9 @@ export struct PhoneLayout {
           onRun: () => this.ws.commands.run(CommandId.RUN)
         })
           .visibility(this.shown(ViewId.TERMINAL))
+        if (this.ws.ui.phoneView === ViewId.AGENT) {
+          AgentPanel({ model: this.ws.agent, touch: true })
+        }
         if (this.isSideView(this.ws.ui.phoneView)) {
           SideBar({ ws: this.ws, view: this.ws.ui.phoneView })
         }

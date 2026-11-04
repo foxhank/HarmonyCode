@@ -1,0 +1,8 @@
+{
+  "name": "harmonycode-remote-tests",
+  "private": true,
+  "description": "Test-only dependency: an independent SSH server to test HarmonyCode's SSH client against.",
+  "devDependencies": {
+    "ssh2": "1.16.0"
+  }
+}

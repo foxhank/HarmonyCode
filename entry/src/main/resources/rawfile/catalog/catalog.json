@@ -1,13 +1,19 @@
 {
   "environments": [
-    { "id": "alpine", "isVm": true, "installCmd": "apk add", "available": true, "recommended": true },
-    { "id": "ubuntu", "isVm": true, "installCmd": "apt install -y", "available": true, "recommended": false },
-    { "id": "debian", "isVm": true, "installCmd": "apt install -y", "available": true, "recommended": false },
-    { "id": "none", "isVm": false, "installCmd": "", "available": true, "recommended": false },
-    { "id": "ssh", "isVm": false, "installCmd": "", "available": false, "recommended": false }
+    { "id": "alpine", "isVm": true, "packageFamily": "apk", "installCmd": "apk add", "recommended": true,
+      "image": { "source": "bundled", "path": "hish/alpine.qcow2", "bytes": 0, "url": "", "sha256": "" },
+      "login": [{ "expect": "login:", "send": "root" }] },
+    { "id": "ubuntu", "isVm": true, "packageFamily": "apt", "installCmd": "apt-get update && apt-get install -y",
+      "recommended": false,
+      "image": { "source": "download", "path": "", "bytes": 454754304,
+        "url": "https://github.com/harmoninux/HiSH-Linux-Image/releases/download/HiSH-image-Ubuntu-26.04/HiSH-image-Ubuntu-26.04.qcow2",
+        "sha256": "70eb0a904e446ac4c7df641cdc84c68529043e0fd80b3975c637d4d447309f2f" },
+      "login": [{ "expect": "login:", "send": "root" }, { "expect": "Password:", "send": "hish" }] },
+    { "id": "none", "isVm": false, "packageFamily": "", "installCmd": "", "recommended": false, "login": [] }
   ],
   "packageAliases": {
-    "apt": { "py3-pip": "python3-pip", "build-base": "build-essential", "go": "golang-go", "rust": "" }
+    "apt": { "py3-pip": "python3-pip", "build-base": "build-essential", "go": "golang-go", "rust": "",
+      "pandoc-cli": "pandoc" }
   },
   "templates": [
     { "id": "empty", "badge": "{ }", "color": "#8B949E", "packages": "", "runCommand": "", "files": ["README.md"] },
@@ -23,7 +29,7 @@
       "files": ["main.go", "go.mod"] },
     { "id": "rust", "badge": "Rs", "color": "#B7410E", "packages": "cargo rust", "runCommand": "cargo run",
       "files": ["Cargo.toml", "src/main.rs", "gitignore"] },
-    { "id": "notes", "badge": "Md", "color": "#2EA043", "packages": "pandoc", "runCommand": "",
+    { "id": "notes", "badge": "Md", "color": "#2EA043", "packages": "pandoc-cli", "runCommand": "",
       "files": ["notes.md", "docs/README.md"] }
   ]
 }

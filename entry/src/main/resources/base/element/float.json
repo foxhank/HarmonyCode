@@ -1,26 +1,22 @@
 {
   "float": [
     { "name": "page_text_font_size", "value": "50fp" },
-
     { "name": "font_xxs", "value": "10fp" },
     { "name": "font_xs", "value": "11fp" },
     { "name": "font_s", "value": "12fp" },
     { "name": "font_m", "value": "14fp" },
     { "name": "font_l", "value": "16fp" },
     { "name": "font_xl", "value": "22fp" },
-
     { "name": "space_xxs", "value": "2vp" },
     { "name": "space_xs", "value": "4vp" },
     { "name": "space_s", "value": "8vp" },
     { "name": "space_m", "value": "12vp" },
     { "name": "space_l", "value": "16vp" },
     { "name": "space_xl", "value": "24vp" },
-
-    { "name": "radius_s", "value": "4vp" },
-    { "name": "radius_m", "value": "6vp" },
-    { "name": "radius_l", "value": "12vp" },
+    { "name": "radius_s", "value": "8vp" },
+    { "name": "radius_m", "value": "12vp" },
+    { "name": "radius_l", "value": "16vp" },
     { "name": "border_width", "value": "1vp" },
-
     { "name": "icon_size_small", "value": "16vp" },
     { "name": "icon_size", "value": "20vp" },
     { "name": "icon_size_large", "value": "24vp" },
@@ -29,7 +25,6 @@
     { "name": "logo_size", "value": "40vp" },
     { "name": "empty_icon_size", "value": "48vp" },
     { "name": "empty_logo_size", "value": "96vp" },
-
     { "name": "button_height", "value": "36vp" },
     { "name": "input_height", "value": "36vp" },
     { "name": "page_header_height", "value": "52vp" },
@@ -39,7 +34,6 @@
     { "name": "list_row_touch_tall", "value": "60vp" },
     { "name": "list_row_compact_touch", "value": "36vp" },
     { "name": "tree_row_height", "value": "26vp" },
-
     { "name": "titlebar_height", "value": "40vp" },
     { "name": "titlebar_height_touch", "value": "52vp" },
     { "name": "title_search_width", "value": "320vp" },
@@ -54,16 +48,14 @@
     { "name": "tab_close_size", "value": "20vp" },
     { "name": "tab_indicator_width", "value": "2vp" },
     { "name": "dirty_dot_size", "value": "8vp" },
-
     { "name": "badge_min_size", "value": "16vp" },
     { "name": "badge_radius", "value": "8vp" },
     { "name": "badge_size_medium", "value": "32vp" },
     { "name": "badge_size_large", "value": "40vp" },
-
     { "name": "dialog_width", "value": "400vp" },
     { "name": "quick_open_width", "value": "560vp" },
     { "name": "popup_max_height", "value": "420vp" },
-    { "name": "settings_overlay_width", "value": "640vp" },
+    { "name": "settings_overlay_width", "value": "880vp" },
     { "name": "overlay_top_margin", "value": "56vp" },
     { "name": "toast_bottom_margin", "value": "72vp" },
     { "name": "form_max_width", "value": "720vp" },
@@ -76,6 +68,24 @@
     { "name": "line_number_width", "value": "40vp" },
     { "name": "extra_keys_bar_height", "value": "44vp" },
     { "name": "extra_key_height", "value": "36vp" },
-    { "name": "extra_key_min_width", "value": "44vp" }
+    { "name": "extra_key_min_width", "value": "44vp" },
+    { "name": "agent_input_min_height", "value": "56vp" },
+    { "name": "agent_input_max_height", "value": "180vp" },
+    { "name": "agent_output_max_height", "value": "320vp" },
+    { "name": "agent_tool_row_height", "value": "32vp" },
+    { "name": "agent_number_field_width", "value": "72vp" },
+    { "name": "list_marker_width", "value": "16vp" },
+    { "name": "plan_dot_size", "value": "12vp" },
+    { "name": "quote_bar_width", "value": "3vp" },
+    { "name": "section_header_height_large", "value": "48vp" },
+    { "name": "settings_nav_width", "value": "220vp" },
+    { "name": "welcome_rail_width", "value": "72vp" },
+    { "name": "radius_xs", "value": "4vp" },
+    { "name": "radius_xl", "value": "24vp" },
+    { "name": "icon_tile_size", "value": "40vp" },
+    { "name": "list_divider_inset", "value": "48vp" },
+    { "name": "list_row", "value": "32vp" },
+    { "name": "port_field_width", "value": "96vp" },
+    { "name": "status_dot_size", "value": "8vp" }
   ]
 }
