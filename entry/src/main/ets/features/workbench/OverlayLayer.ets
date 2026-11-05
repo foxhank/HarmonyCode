@@ -3,6 +3,7 @@ import { UiConst } from '../../components/UiConst';
 import { layoutState } from '../app/LayoutState';
 import { QuickOpenView } from '../commands/QuickOpenView';
 import { BranchPicker } from '../scm/BranchPicker';
+import { EnvironmentPanel } from '../environment/EnvironmentPanel';
 import { SettingsPanel } from '../settings/SettingsPanel';
 import { OverlayId } from './WorkbenchState';
 import { Workspace } from './Workspace';
@@ -49,9 +50,26 @@ export struct OverlayLayer {
     .clip(true)
   }
 
+  private centered(): boolean {
+    return this.ws.ui.overlay === OverlayId.SETTINGS || this.ws.ui.overlay === OverlayId.ENVIRONMENT;
+  }
+
+  @Builder
+  environmentCard() {
+    Column() {
+      EnvironmentPanel({ ws: this.ws, touch: !layoutState.isDesktop, onClose: () => this.close() })
+    }
+    .width(layoutState.isPhone ? UiConst.FULL : $r('app.float.dialog_width_large'))
+    .height(layoutState.isPhone ? UiConst.FULL : UiConst.SETTINGS_OVERLAY_HEIGHT)
+    .constraintSize({ maxWidth: layoutState.isPhone ? UiConst.FULL : UiConst.FLOATING_MAX_WIDTH })
+    .borderRadius(layoutState.isPhone ? 0 : $r('app.float.radius_xl'))
+    .shadow(ShadowStyle.OUTER_FLOATING_MD)
+    .clip(true)
+  }
+
   build() {
     if (this.ws.ui.overlay !== OverlayId.NONE) {
-      Stack({ alignContent: this.ws.ui.overlay === OverlayId.SETTINGS ? Alignment.Center : Alignment.Top }) {
+      Stack({ alignContent: this.centered() ? Alignment.Center : Alignment.Top }) {
         Column()
           .width(UiConst.FULL)
           .height(UiConst.FULL)
@@ -64,9 +82,11 @@ export struct OverlayLayer {
             BranchPicker({ model: this.ws.scm, onClose: () => this.close() })
           } else if (this.ws.ui.overlay === OverlayId.SETTINGS) {
             this.settingsCard()
+          } else if (this.ws.ui.overlay === OverlayId.ENVIRONMENT) {
+            this.environmentCard()
           }
         }
-        .margin({ top: this.ws.ui.overlay === OverlayId.SETTINGS ? 0 : $r('app.float.overlay_top_margin') })
+        .margin({ top: this.centered() ? 0 : $r('app.float.overlay_top_margin') })
       }
       .width(UiConst.FULL)
       .height(UiConst.FULL)

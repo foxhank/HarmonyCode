@@ -31,6 +31,8 @@ export class OverlayId {
   static readonly QUICK_OPEN: string = 'quickOpen';
   static readonly SETTINGS: string = 'settings';
   static readonly BRANCHES: string = 'branches';
+  /** Where the project runs (device or computer) and its languages and tools. */
+  static readonly ENVIRONMENT: string = 'environment';
 }
 
 /** Which parts of the workbench are visible, and their sizes. No file or Git logic here. */

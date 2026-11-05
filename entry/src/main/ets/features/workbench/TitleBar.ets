@@ -28,6 +28,10 @@ export struct TitleBar {
       MenuItem({ content: $r('app.string.cmd_save_all') }).onClick(() => this.run(CommandId.SAVE_ALL))
       MenuItem({ content: $r('app.string.cmd_new_file') }).onClick(() => this.run(CommandId.NEW_FILE))
       MenuItem({ content: $r('app.string.cmd_git_branch') }).onClick(() => this.run(CommandId.GIT_BRANCH))
+      MenuItem({ content: $r('app.string.cmd_environment') }).onClick(() => this.run(CommandId.ENVIRONMENT))
+      if (this.ws.target !== null) {
+        MenuItem({ content: $r('app.string.cmd_sync_remote') }).onClick(() => this.run(CommandId.SYNC))
+      }
       MenuItem({ content: $r('app.string.cmd_settings') }).onClick(() => this.run(CommandId.SETTINGS))
       MenuItem({ content: $r('app.string.cmd_close_project') }).onClick(() => this.onBack())
     }

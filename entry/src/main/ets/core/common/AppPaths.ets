@@ -14,6 +14,8 @@ export class AppPaths {
   static vmFirmware: string = '';
   /** Short-lived files such as the VM console socket: <temp> */
   static temp: string = '';
+  /** What was last synced between projects and remote computers: <files>/sync */
+  static sync: string = '';
 
   static init(ctx: common.Context): void {
     AppPaths.workspace = ctx.filesDir + '/' + AppConfig.WORKSPACE_DIR;
@@ -21,7 +23,8 @@ export class AppPaths {
     AppPaths.vm = ctx.filesDir + '/' + AppConfig.VM_DIR;
     AppPaths.vmFirmware = AppPaths.vm + '/' + AppConfig.VM_FIRMWARE_DIR;
     AppPaths.temp = ctx.tempDir;
-    for (const d of [AppPaths.workspace, AppPaths.vmControl, AppPaths.vm, AppPaths.vmFirmware]) {
+    AppPaths.sync = ctx.filesDir + '/' + AppConfig.SYNC_DIR;
+    for (const d of [AppPaths.workspace, AppPaths.vmControl, AppPaths.vm, AppPaths.vmFirmware, AppPaths.sync]) {
       if (!fileIo.accessSync(d)) {
         fileIo.mkdirSync(d, true);
       }

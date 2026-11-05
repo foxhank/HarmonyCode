@@ -86,6 +86,7 @@
     { "name": "list_divider_inset", "value": "48vp" },
     { "name": "list_row", "value": "32vp" },
     { "name": "port_field_width", "value": "96vp" },
-    { "name": "status_dot_size", "value": "8vp" }
+    { "name": "status_dot_size", "value": "8vp" },
+    { "name": "dialog_width_large", "value": "600vp" }
   ]
 }

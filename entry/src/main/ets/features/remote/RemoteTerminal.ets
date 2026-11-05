@@ -14,22 +14,27 @@ const RED: string = '\x1b[31m';
 const RESET: string = '\x1b[0m';
 const NL: string = '\r\n';
 
+/** Folder a new shell should start in ('' = the host's start folder). */
+export type StartDirProvider = () => Promise<string>;
+
 /**
  * An interactive login shell on the remote computer, in a pseudo-terminal. When the connection
  * drops it says so and reconnects on Enter (phones lose connections when they sleep).
  */
-class SshShellBackend implements ShellBackend {
+export class SshShellBackend implements ShellBackend {
   private conn: RemoteConnection;
   private sink: OutputSink;
+  private dirProvider: StartDirProvider | null;
   private ch: SshChannel | null = null;
   private opening: boolean = false;
   private cols: number = 80;
   private rows: number = 24;
   private stopped: boolean = false;
 
-  constructor(conn: RemoteConnection, sink: OutputSink) {
+  constructor(conn: RemoteConnection, sink: OutputSink, dirProvider: StartDirProvider | null = null) {
     this.conn = conn;
     this.sink = sink;
+    this.dirProvider = dirProvider;
   }
 
   label(): string {
@@ -91,7 +96,7 @@ class SshShellBackend implements ShellBackend {
         throw new Error(Strings.get('remote_term_refused'));
       }
       this.ch = ch;
-      this.enterStartDir(ch);
+      this.enterStartDir(ch, this.dirProvider !== null ? await this.dirProvider() : '');
     } catch (e) {
       this.sink(RED + (e as Error).message + RESET + NL + DIM + Strings.get('remote_term_retry') + RESET + NL);
     } finally {
@@ -99,9 +104,9 @@ class SshShellBackend implements ShellBackend {
     }
   }
 
-  /** Moves the new shell into the host's configured start folder, if any. */
-  private enterStartDir(ch: SshChannel): void {
-    const dir = this.conn.host.startDir.trim();
+  /** Moves the new shell into `preferred`, else the host's configured start folder, if any. */
+  private enterStartDir(ch: SshChannel, preferred: string): void {
+    const dir = preferred.length > 0 ? preferred : this.conn.host.startDir.trim();
     if (dir.length === 0) {
       return;
     }

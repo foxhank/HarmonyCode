@@ -62,6 +62,22 @@ export function registerWorkbenchCommands(ws: Workspace): void {
       run: () => ws.ui.openOverlay(OverlayId.BRANCHES)
     },
     {
+      id: CommandId.ENVIRONMENT, titleKey: 'cmd_environment', keys: '', run: () => {
+        ws.tools?.refresh();
+        ws.ui.openOverlay(OverlayId.ENVIRONMENT);
+      }
+    },
+    {
+      id: CommandId.SYNC, titleKey: 'cmd_sync_remote', keys: 'Ctrl+Shift+Y', run: () => {
+        if (ws.target !== null) {
+          ws.editor.saveAll();
+          ws.target.syncNow();
+        } else {
+          ws.ui.openOverlay(OverlayId.ENVIRONMENT);
+        }
+      }
+    },
+    {
       id: CommandId.SETTINGS, titleKey: 'cmd_settings', keys: 'Ctrl+,',
       run: () => ws.ui.openOverlay(OverlayId.SETTINGS)
     },

@@ -16,6 +16,7 @@ import { ColorUtil } from '../features/app/ColorUtil';
 import { layoutState } from '../features/app/LayoutState';
 import { remoteHosts } from '../features/remote/RemoteHostsStore';
 import { RemoteServices } from '../features/remote/RemoteServices';
+import { desktops } from '../features/link/DesktopsStore';
 import { BackgroundKeeper } from '../features/app/BackgroundKeeper';
 
 const TAG: string = 'EntryAbility';
@@ -35,6 +36,7 @@ export default class EntryAbility extends UIAbility {
       Catalog.load(ctx);
       projectRepository.load(ctx);
       remoteHosts.load(ctx, RemoteServices.crypto);
+      desktops.load(ctx, RemoteServices.crypto, RemoteServices.sockets);
       BackgroundKeeper.init(ctx);
       envImages.init(ctx);
       vmRuntime.init(new HishEngine());

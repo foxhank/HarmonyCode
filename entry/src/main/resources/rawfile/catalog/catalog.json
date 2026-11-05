@@ -1,20 +1,33 @@
 {
   "environments": [
-    { "id": "alpine", "isVm": true, "packageFamily": "apk", "installCmd": "apk add", "recommended": true,
+    { "id": "alpine", "isVm": true, "packageFamily": "apk", "installCmd": "apk add", "removeCmd": "apk del", "recommended": true,
       "image": { "source": "bundled", "path": "hish/alpine.qcow2", "bytes": 0, "url": "", "sha256": "" },
       "login": [{ "expect": "login:", "send": "root" }] },
-    { "id": "ubuntu", "isVm": true, "packageFamily": "apt", "installCmd": "apt-get update && apt-get install -y",
+    { "id": "ubuntu", "isVm": true, "packageFamily": "apt", "installCmd": "apt-get update && apt-get install -y", "removeCmd": "apt-get remove -y",
       "recommended": false,
       "image": { "source": "download", "path": "", "bytes": 454754304,
         "url": "https://github.com/harmoninux/HiSH-Linux-Image/releases/download/HiSH-image-Ubuntu-26.04/HiSH-image-Ubuntu-26.04.qcow2",
         "sha256": "70eb0a904e446ac4c7df641cdc84c68529043e0fd80b3975c637d4d447309f2f" },
       "login": [{ "expect": "login:", "send": "root" }, { "expect": "Password:", "send": "hish" }] },
-    { "id": "none", "isVm": false, "packageFamily": "", "installCmd": "", "recommended": false, "login": [] }
+    { "id": "none", "isVm": false, "packageFamily": "", "installCmd": "", "removeCmd": "", "recommended": false, "login": [] }
   ],
   "packageAliases": {
     "apt": { "py3-pip": "python3-pip", "build-base": "build-essential", "go": "golang-go", "rust": "",
-      "pandoc-cli": "pandoc" }
+      "pandoc-cli": "pandoc", "openjdk21-jdk": "default-jdk", "sqlite": "sqlite3", "py3-virtualenv": "python3-venv" }
   },
+  "tools": [
+    { "id": "python", "badge": "Py", "color": "#3776AB", "packages": "python3 py3-pip py3-virtualenv", "bin": "python3",
+      "version": "python3 --version" },
+    { "id": "node", "badge": "JS", "color": "#C9A400", "packages": "nodejs npm", "bin": "node", "version": "node --version" },
+    { "id": "git", "badge": "Git", "color": "#F05032", "packages": "git", "bin": "git", "version": "git --version" },
+    { "id": "cbuild", "badge": "C", "color": "#5C6BC0", "packages": "build-base", "bin": "gcc", "version": "gcc --version" },
+    { "id": "go", "badge": "Go", "color": "#00ADD8", "packages": "go", "bin": "go", "version": "go version" },
+    { "id": "rust", "badge": "Rs", "color": "#B7410E", "packages": "cargo rust", "bin": "cargo", "version": "cargo --version" },
+    { "id": "java", "badge": "J", "color": "#E76F00", "packages": "openjdk21-jdk", "bin": "javac", "version": "javac -version" },
+    { "id": "ripgrep", "badge": "rg", "color": "#6E7781", "packages": "ripgrep", "bin": "rg", "version": "rg --version" },
+    { "id": "sqlite", "badge": "DB", "color": "#0F80CC", "packages": "sqlite", "bin": "sqlite3", "version": "sqlite3 --version" },
+    { "id": "curl", "badge": "⇅", "color": "#073551", "packages": "curl", "bin": "curl", "version": "curl --version" }
+  ],
   "templates": [
     { "id": "empty", "badge": "{ }", "color": "#8B949E", "packages": "", "runCommand": "", "files": ["README.md"] },
     { "id": "python", "badge": "Py", "color": "#3776AB", "packages": "python3 py3-pip", "runCommand": "python3 main.py",

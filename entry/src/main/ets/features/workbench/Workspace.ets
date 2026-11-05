@@ -6,7 +6,8 @@ import { EventBus, Events } from '../../core/common/EventBus';
 import { FileService } from '../../core/fs/FileService';
 import { GitClient } from '../../core/git/GitClient';
 import { GitChange } from '../../core/git/GitTypes';
-import { ProjectInfo } from '../../core/project/ProjectInfo';
+import { Catalog } from '../../core/project/Catalog';
+import { ProjectInfo, runsOnDesktop, runsRemotely } from '../../core/project/ProjectInfo';
 import { SearchHit } from '../../core/search/TextSearch';
 import { agentSettings } from '../../core/settings/AgentSettingsStore';
 import { SettingsStore } from '../../core/settings/SettingsStore';
@@ -28,6 +29,12 @@ import { ExplorerHost, ExplorerModel } from '../explorer/ExplorerModel';
 import { ScmHost, ScmModel } from '../scm/ScmModel';
 import { SearchModel } from '../search/SearchModel';
 import { TerminalModel } from '../terminal/TerminalModel';
+import { ToolsModel } from '../environment/ToolsModel';
+import { remoteHosts } from '../remote/RemoteHostsStore';
+import { RemoteTarget, RemoteTargetHost } from '../remote/RemoteTarget';
+import { RunTarget } from '../remote/RunTarget';
+import { DesktopTarget } from '../link/DesktopTarget';
+import { desktops } from '../link/DesktopsStore';
 import { registerWorkbenchCommands } from './WorkbenchCommands';
 import { OverlayId, SettingsCategory, WorkbenchState } from './WorkbenchState';
 
@@ -57,6 +64,10 @@ export class Workspace {
   readonly terminal: TerminalModel;
   readonly quickOpen: QuickOpenModel;
   readonly agent: AgentModel;
+  /** Set when the project runs elsewhere: a computer over SSH, or the paired desktop over Link. */
+  readonly target: RunTarget | null;
+  /** Languages and tools of the project's Linux VM (null when it runs remotely or has no VM). */
+  readonly tools: ToolsModel | null;
 
   constructor(project: ProjectInfo, deps: WorkspaceDeps) {
     this.project = project;
@@ -66,15 +77,40 @@ export class Workspace {
     this.explorer = new ExplorerModel(project.path, new ExplorerHostImpl(this));
     this.search = new SearchModel(project.path, (hit: SearchHit) => this.editor.openFile(hit.path, hit.line, hit.col));
     this.scm = new ScmModel(project.path, deps.git, new ScmHostImpl(this));
+    this.target = Workspace.createTarget(project, new RemoteTargetHostImpl(this));
     this.terminal = new TerminalModel(project, deps.git, new ShellHostImpl(this), deps.settings,
-      () => WebTheme.terminal());
+      () => WebTheme.terminal(), this.target);
     this.quickOpen = new QuickOpenModel(project.path, this.commands, new QuickOpenHostImpl(this));
-    this.agent = new AgentModel(new AgentHostImpl(this), agentSettings);
+    const agentHost = new AgentHostImpl(this);
+    this.agent = new AgentModel(agentHost, agentSettings);
+    const env = Catalog.environment(project.envId);
+    this.tools = this.target === null && env !== undefined && env.isVm ?
+      new ToolsModel(env, agentHost.shell(), project.path) : null;
+    const remote = this.target;
+    if (remote !== null) {
+      // Saved and renamed files go up to the computer shortly after.
+      const push = (): void => remote.schedulePush();
+      this.bus.on(Events.FILE_SAVED, push);
+      this.bus.on(Events.FILE_RENAMED, push);
+      this.bus.on(Events.FILE_DELETED, push);
+      // Explorer edits (new files, folders, renames) are pushed too; sync downloads are not echoed.
+      this.bus.on(Events.FILES_CHANGED, push);
+    }
     registerWorkbenchCommands(this);
+  }
+
+  private static createTarget(project: ProjectInfo, host: RemoteTargetHost): RunTarget | null {
+    if (runsOnDesktop(project)) {
+      const d = desktops.get(project.desktopId as string);
+      return d !== undefined ? new DesktopTarget(project, d, host) : null;
+    }
+    const h = runsRemotely(project) ? remoteHosts.get(project.remoteHostId as string) : undefined;
+    return h !== undefined ? new RemoteTarget(project, h, host) : null;
   }
 
   dispose(): void {
     this.agent.dispose();
+    this.target?.dispose();
     this.editor.dispose();
     this.explorer.dispose();
     this.scm.dispose();
@@ -177,6 +213,10 @@ class ShellHostImpl implements ShellHost {
     return CatalogText.envName(this.ws.project.envId);
   }
 
+  environmentId(): string {
+    return this.ws.project.envId;
+  }
+
   runCommand(): string {
     return this.ws.project.runCommand;
   }
@@ -214,16 +254,36 @@ class QuickOpenHostImpl implements QuickOpenHost {
   }
 }
 
+/** Refreshes the editor and explorer when a sync brings files from the computer. */
+class RemoteTargetHostImpl implements RemoteTargetHost {
+  private ws: Workspace;
+
+  constructor(ws: Workspace) {
+    this.ws = ws;
+  }
+
+  localFilesChanged(paths: string[]): void {
+    for (const p of paths) {
+      if (p.length > 0 && !FileService.exists(p)) {
+        this.ws.bus.emit(Events.FILE_DELETED, p);
+      } else {
+        this.ws.bus.emit(Events.FILES_CHANGED, p);
+      }
+    }
+  }
+}
+
 class AgentHostImpl implements AgentHost, VmRunnerHost {
   private ws: Workspace;
   private agentFs: SandboxAgentFs = new SandboxAgentFs();
-  private runner: WorkspaceCommandRunner;
+  private runner: CommandRunner;
   private guard: PathGuard;
 
   constructor(ws: Workspace) {
     this.ws = ws;
     this.guard = new PathGuard(ws.project.path, true);
-    this.runner = new WorkspaceCommandRunner(new VmCommandRunner(this),
+    // Remote projects run on the computer; others in the VM when it runs, else the built-in shell.
+    this.runner = ws.target !== null ? ws.target : new WorkspaceCommandRunner(new VmCommandRunner(this),
       new BuiltinCommandRunner(new ShellHostImpl(ws), ws.deps.git), () => ws.terminal.usingVm);
   }
 
@@ -287,5 +347,9 @@ class AgentHostImpl implements AgentHost, VmRunnerHost {
 
   environmentName(): string {
     return CatalogText.envName(this.ws.project.envId);
+  }
+
+  environmentId(): string {
+    return this.ws.project.envId;
   }
 }

@@ -48,7 +48,7 @@ class DialogHostKeyTrust implements HostKeyTrust {
 /** Platform pieces and per-host connections for remote computers. */
 export class RemoteServices {
   static readonly crypto: OhosSshCrypto = new OhosSshCrypto();
-  private static readonly sockets: OhosSockets = new OhosSockets();
+  static readonly sockets: OhosSockets = new OhosSockets();
   private static readonly trust: DialogHostKeyTrust = new DialogHostKeyTrust(remoteHosts);
 
   static env(): RemoteEnv {

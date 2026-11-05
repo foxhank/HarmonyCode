@@ -1,4 +1,6 @@
 import { Strings } from '../../core/common/Strings';
+import { TimeFormat } from '../../core/common/TimeFormat';
+import { CommandId } from '../commands/CommandService';
 import { UiConst } from '../../components/UiConst';
 import { CatalogText } from '../app/CatalogText';
 import { Languages } from '../editor/Languages';
@@ -37,12 +39,20 @@ export struct StatusBar {
 
   build() {
     Row() {
-      Text(CatalogText.envName(this.ws.project.envId))
+      Text(this.ws.target !== null ? Strings.get('status_runs_on', this.ws.target.displayName()) :
+        CatalogText.envName(this.ws.project.envId))
         .fontSize($r('app.float.font_xs'))
         .fontColor($r('app.color.text_on_accent'))
         .backgroundColor($r('app.color.statusbar_remote_bg'))
         .padding({ left: $r('app.float.space_s'), right: $r('app.float.space_s') })
         .height(UiConst.FULL)
+        .onClick(() => this.ws.commands.run(CommandId.ENVIRONMENT))
+      if (this.ws.target !== null) {
+        this.item(this.ws.target.syncing ? Strings.get('status_syncing') :
+          (this.ws.target.error.length > 0 ? Strings.get('status_sync_error') :
+            (this.ws.target.lastSync > 0 ? Strings.get('status_synced', TimeFormat.relative(this.ws.target.lastSync)) :
+              Strings.get('status_not_synced'))), () => this.ws.commands.run(CommandId.SYNC))
+      }
       if (this.ws.scm.branch.length > 0) {
         this.item(Strings.get('status_branch', this.ws.scm.branch, this.ws.scm.changeCount),
           () => this.ws.ui.openOverlay(OverlayId.BRANCHES))

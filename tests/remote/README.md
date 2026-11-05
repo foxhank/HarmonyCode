@@ -19,6 +19,10 @@ node build.mjs remote
 ```
 
 ```bash
+node build.mjs sync
+```
+
+```bash
 node build.mjs agent path/to/account.txt anthropic
 ```
 
@@ -31,6 +35,9 @@ node build.mjs agent path/to/account.txt anthropic
   in a working folder with timeout and stop (the process is killed on the server), background jobs,
   reconnecting after the link drops, jump hosts with key login, and the agent's tools on the remote
   machine.
+- `sync`: two-way project sync between a phone folder and a computer folder (first upload, edits
+  and deletions in both directions, conflicts, dependency folders left alone, binary files) and
+  running a phone project's commands on the computer with the results synced back.
 - `agent`: live, end to end. A real model works on the "remote computer" only through SSH: it fixes
   failing tests, runs a server in the background and stops it, and asks the user a question. The
   account file is the same as for `tests/agent`.

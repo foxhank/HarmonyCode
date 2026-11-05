@@ -38,6 +38,8 @@ export interface EnvironmentDef {
   packageFamily: string;
   /** Package install command prefix, e.g. 'apk add'. */
   installCmd: string;
+  /** Package removal command prefix, e.g. 'apk del'. */
+  removeCmd: string;
   recommended: boolean;
   /** Root filesystem, for VM environments. */
   image?: ImageDef;
@@ -56,15 +58,29 @@ export interface TemplateDef {
   files: string[];
 }
 
+/** A language or tool the user can install into a Linux environment. Text: tool_<id>_name / tool_<id>_detail. */
+export interface ToolDef {
+  id: string;
+  badge: string;
+  color: string;
+  /** Alpine package names, space-separated (mapped for other distributions). */
+  packages: string;
+  /** Program whose presence means the tool is installed. */
+  bin: string;
+  /** Prints the version (first line is shown). */
+  version: string;
+}
+
 interface CatalogData {
   environments: EnvironmentDef[];
   templates: TemplateDef[];
+  tools: ToolDef[];
   packageAliases: Record<string, Record<string, string>>;
 }
 
 /** Environments and project templates, loaded from rawfile/catalog. */
 export class Catalog {
-  private static data: CatalogData = { environments: [], templates: [], packageAliases: {} };
+  private static data: CatalogData = { environments: [], templates: [], tools: [], packageAliases: {} };
   private static ctx: common.Context | null = null;
 
   static load(ctx: common.Context): void {
@@ -84,6 +100,10 @@ export class Catalog {
     return Catalog.data.templates;
   }
 
+  static tools(): ToolDef[] {
+    return Catalog.data.tools ?? [];
+  }
+
   static environment(id: string): EnvironmentDef | undefined {
     return Catalog.data.environments.find((e: EnvironmentDef) => e.id === id);
   }
@@ -99,12 +119,25 @@ export class Catalog {
 
   /** e.g. 'apk add python3 py3-pip' or 'apt install -y python3 python3-pip'; '' if nothing to install. */
   static installCommand(env: EnvironmentDef, tpl: TemplateDef): string {
-    if (!env.isVm || tpl.packages.length === 0) {
+    return Catalog.packageCommand(env, env.installCmd, tpl.packages);
+  }
+
+  static toolInstallCommand(env: EnvironmentDef, tool: ToolDef): string {
+    return Catalog.packageCommand(env, env.installCmd, tool.packages);
+  }
+
+  static toolRemoveCommand(env: EnvironmentDef, tool: ToolDef): string {
+    return Catalog.packageCommand(env, env.removeCmd ?? '', tool.packages);
+  }
+
+  /** `prefix` followed by `packages` mapped to the environment's package names; '' if nothing to do. */
+  private static packageCommand(env: EnvironmentDef, prefix: string, packages: string): string {
+    if (!env.isVm || packages.length === 0 || prefix.length === 0) {
       return '';
     }
     const aliases: Record<string, string> | undefined = Catalog.data.packageAliases[env.packageFamily];
     const out: string[] = [];
-    for (const name of tpl.packages.split(' ')) {
+    for (const name of packages.split(' ')) {
       let mapped = name;
       if (aliases !== undefined && aliases[name] !== undefined) {
         mapped = aliases[name];
@@ -113,7 +146,7 @@ export class Catalog {
         out.push(mapped);
       }
     }
-    return env.installCmd + ' ' + out.join(' ');
+    return out.length > 0 ? prefix + ' ' + out.join(' ') : '';
   }
 
   /** Text content of one template file. */

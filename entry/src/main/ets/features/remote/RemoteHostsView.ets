@@ -11,6 +11,9 @@ import { appNav, Routes } from '../app/AppNavigation';
 import { ButtonRole, dialogs } from '../dialogs/DialogModel';
 import { toasts } from '../dialogs/ToastModel';
 import { RemoteHostsStore, remoteHosts } from './RemoteHostsStore';
+import { TimeFormat } from '../../core/common/TimeFormat';
+import { DesktopPairing } from '../link/DesktopPairing';
+import { DesktopsStore, desktops, PairedDesktop } from '../link/DesktopsStore';
 
 /** Copies text to the clipboard and confirms with a toast. */
 export function copyText(text: string, confirmation: string): void {
@@ -31,6 +34,7 @@ export function copyText(text: string, confirmation: string): void {
 export struct RemoteHostsView {
   @Param touch: boolean = false;
   @Local store: RemoteHostsStore = remoteHosts;
+  @Local desks: DesktopsStore = desktops;
   private card: ElevatedCardModifier = new ElevatedCardModifier();
 
   private open(h: RemoteHost): void {
@@ -110,6 +114,74 @@ export struct RemoteHostsView {
     .onClick(() => this.open(h))
     .gesture(LongPressGesture().onAction(() => this.edit(h.id)))
     .accessibilityText(h.name + ', ' + hostAddress(h))
+  }
+
+  @Builder
+  pairMenu() {
+    Menu() {
+      MenuItem({ content: $r('app.string.link_scan') }).onClick(() => DesktopPairing.scan(getContext(this)))
+      MenuItem({ content: $r('app.string.link_paste_title') }).onClick(() => DesktopPairing.paste())
+    }
+  }
+
+  @Builder
+  desktopMenu(d: PairedDesktop) {
+    Menu() {
+      MenuItem({ content: $r('app.string.link_forget') }).onClick(() => DesktopPairing.forget(d))
+    }
+  }
+
+  @Builder
+  desktopsCard() {
+    Column({ space: $r('app.float.space_s') }) {
+      Row({ space: $r('app.float.space_m') }) {
+        IconTile({ icon: $r('app.media.ic_link') })
+        Column({ space: $r('app.float.space_xxs') }) {
+          Text($r('app.string.link_title'))
+            .fontSize($r('app.float.font_m'))
+            .fontWeight(FontWeight.Medium)
+            .fontColor($r('app.color.text_primary'))
+          Text($r('app.string.link_subtitle'))
+            .fontSize($r('app.float.font_xs'))
+            .fontColor($r('app.color.text_secondary'))
+        }
+        .alignItems(HorizontalAlign.Start)
+        .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+        ActionButton({ text: $r('app.string.link_pair_desktop'), icon: $r('app.media.ic_add'), kind: ActionStyle.PRIMARY })
+          .bindMenu(this.pairMenu())
+      }
+      .width(UiConst.FULL)
+      ForEach(this.desks.desktops, (d: PairedDesktop) => {
+        Row({ space: $r('app.float.space_m') }) {
+          Image($r('app.media.ic_computer'))
+            .width($r('app.float.icon_size'))
+            .height($r('app.float.icon_size'))
+            .fillColor($r('app.color.icon'))
+          Column({ space: $r('app.float.space_xxs') }) {
+            Text(d.name)
+              .fontSize($r('app.float.font_m'))
+              .fontColor($r('app.color.text_primary'))
+            Text(Strings.get('link_desktop_meta', d.os, TimeFormat.relative(d.lastConnected)))
+              .fontSize($r('app.float.font_xs'))
+              .fontColor($r('app.color.text_secondary'))
+          }
+          .alignItems(HorizontalAlign.Start)
+          .layoutWeight(UiConst.LAYOUT_WEIGHT_FILL)
+          IconButton({ icon: $r('app.media.ic_more'), label: $r('app.string.action_more'),
+            buttonSize: this.touch ? $r('app.float.icon_button_size_touch') : $r('app.float.icon_button_size') })
+            .bindMenu(this.desktopMenu(d))
+        }
+        .width(UiConst.FULL)
+        .padding({ top: $r('app.float.space_xs'), bottom: $r('app.float.space_xs') })
+      }, (d: PairedDesktop) => d.id + ':' + d.lastConnected)
+      Text(this.desks.desktops.length > 0 ? $r('app.string.link_use_hint') : $r('app.string.link_get_app'))
+        .fontSize($r('app.float.font_xs'))
+        .fontColor($r('app.color.text_muted'))
+        .width(UiConst.FULL)
+    }
+    .attributeModifier(this.card)
+    .width(UiConst.FULL)
+    .padding($r('app.float.space_m'))
   }
 
   @Builder
@@ -214,6 +286,7 @@ export struct RemoteHostsView {
           })
             .width(UiConst.FULL)
         }
+        this.desktopsCard()
         ForEach(this.store.sorted(), (h: RemoteHost) => {
           this.hostCard(h)
         }, (h: RemoteHost) => h.id + ':' + h.name + ':' + h.host + ':' + h.port + ':' + h.username + ':' + h.jumpHostId)

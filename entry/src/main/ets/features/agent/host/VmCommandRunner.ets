@@ -5,6 +5,7 @@ import { PathUtil } from '../../../core/fs/PathUtil';
 import { cancelledError, CancelToken } from '../../../core/llm/CancelToken';
 import { GuestCommands } from '../../../core/terminal/vm/GuestCommands';
 import { VmPhase, vmRuntime } from '../../../core/terminal/vm/VmRuntime';
+import { InstalledTools } from '../../environment/ToolsModel';
 
 const JOB_DIR: string = 'agent-jobs';
 const POLL_MS: number = 250;
@@ -21,6 +22,7 @@ export interface VmRunnerHost {
   /** Opens the terminal so the VM boots (it starts when a terminal attaches). */
   ensureVmStarted(): void;
   environmentName(): string;
+  environmentId(): string;
 }
 
 /**
@@ -40,7 +42,12 @@ export class VmCommandRunner implements CommandRunner {
     return `Linux VM (${this.host.environmentName()}) running a POSIX sh with the usual tools; install ` +
       'packages with the distribution\'s package manager (e.g. `apk add` on Alpine). Commands start in the ' +
       'project folder (shared with the VM). Each command runs in a fresh non-interactive shell: `cd` and ' +
-      'variables do not persist between calls. Commands appear in the user\'s terminal.';
+      'variables do not persist between calls. Commands appear in the user\'s terminal.' + this.toolsNote();
+  }
+
+  private toolsNote(): string {
+    const installed = InstalledTools.summary(this.host.environmentId());
+    return installed.length > 0 ? ' Installed languages and tools: ' + installed + '.' : '';
   }
 
   async run(command: string, cwd: string, timeoutMs: number, cancel: CancelToken,

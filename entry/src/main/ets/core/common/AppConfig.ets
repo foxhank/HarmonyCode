@@ -83,6 +83,8 @@ export class AppConfig {
   static readonly WORKSPACE_DIR: string = 'workspace';
   static readonly VM_CONTROL_DIR: string = '.harmonycode';
   static readonly VM_DIR: string = 'vm';
+  /** Project sync records (see AppPaths.sync). */
+  static readonly SYNC_DIR: string = 'sync';
   static readonly VM_FIRMWARE_DIR: string = 'firmware';
 
   // Preference store names.

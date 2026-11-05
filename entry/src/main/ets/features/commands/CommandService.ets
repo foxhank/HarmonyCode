@@ -28,6 +28,8 @@ export class CommandId {
   static readonly SETTINGS: string = 'settings';
   static readonly CLOSE_PROJECT: string = 'closeProject';
   static readonly RESTART_APP: string = 'restartApp';
+  static readonly ENVIRONMENT: string = 'environment';
+  static readonly SYNC: string = 'syncRemote';
 }
 
 export interface WorkbenchCommand {
